@@ -1,0 +1,73 @@
+{% extends "main.html" %} {% block header %}
+<title>Rrawl - 垂直搜索引擎</title>
+<link rel="stylesheet" href="/statics/css/index.css" />
+{% endblock %} {% block content %}
+<div style="background-color: #ab0000; height: 10px;"></div>
+
+<div class="mdui-container">
+
+
+
+<!--标题界面-->
+  <center>
+    <div
+      class="mdui-typo-display-4-opacity"
+      style="margin-top: 12%; margin-bottom: 3%; background-color: #ffdc00; color:#ab0000;"
+    >
+      Rrawl Searcher
+    </div>
+      <div
+        class="mdui-typo-display-1-opacity"
+        style="margin-top: 3%; margin-bottom: 3%; background-color: #ffdc00; color:#ab0000;bottom: 0; left: 0;"
+      >
+        Version：0.1（Normal Search）
+      </div>
+  </center>
+  
+
+  
+  <!--数据库内的普通搜索-->
+  <form action="/search">
+    <div class="mdui-textfield mdui-textfield-floating-label">
+      <label class="mdui-center mdui-textfield-label" style="width: 50%">Search</label>
+      <input
+        class="mdui-center mdui-textfield-input"
+        name="q"
+        style="width: 50%"
+      />
+    </div>
+  </form>
+
+<!--为什么你不问问神奇的chatGPT呢？-->
+  <form action="/gpt-3.5">
+    <div class="mdui-textfield mdui-textfield-floating-label">
+      <label class="mdui-center mdui-textfield-label" style="width: 50%">chatGPT search...</label>
+      <input
+        class="mdui-center mdui-textfield-input"
+        name="a"
+        style="width: 50%"
+      />
+    </div>
+  </form>
+<!--为什么你不问问神奇的GPT-4捏-->
+  <form action="/gpt-4">
+    <div class="mdui-textfield mdui-textfield-floating-label">
+      <label class="mdui-center mdui-textfield-label" style="width: 50%">GPT-4 search...</label>
+      <input
+        class="mdui-center mdui-textfield-input"
+        name="ap"
+        style="width: 50%"
+      />
+    </div>
+  </form>
+</div>
+
+<div class="comment-float">
+  <div class="comment-box">
+    <p>GPT-4 API目前还未开放</p>
+  </div>
+</div>
+<!--色带底部-->
+<div style="background-color: #ab0000; height: 10px;"></div>
+{% endblock %}
+

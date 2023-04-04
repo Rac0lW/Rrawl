@@ -3,7 +3,7 @@ import time
 
 from importlib import import_module
 
-from monkey.config import Config
+from monkey.config.config import Config
 from monkey.utils.log import logger
 
 def file_name(file_dir=os.path.join(Config.BASE_DIR, "spider/sources")):
