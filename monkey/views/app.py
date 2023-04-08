@@ -1,5 +1,9 @@
 from sanic import Sanic
 
+import sys
+
+from aiocache import SimpleMemoryCache
+
 from monkey.config.config import Config
 from monkey.database.motor_base import MotorBase
 from monkey.views.bp_home import bp_home
@@ -17,6 +21,8 @@ def init_cache(app, loop):
     :return:
     """
     app.config['monkey_config'] = Config
+    """cache 代码更改处"""
+    app.ctx.cache = SimpleMemoryCache()
     app.ctx.mongo_db = MotorBase(loop=loop).get_db()
 
 

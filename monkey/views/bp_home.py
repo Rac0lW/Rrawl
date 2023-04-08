@@ -1,6 +1,8 @@
 
 import sys
+sys.path.append("..")
 
+import time
 from sanic import Blueprint
 
 from jinja2 import Environment, PackageLoader, select_autoescape
@@ -35,11 +37,32 @@ async def index(request):
 
 @bp_home.route('/search')
 async def index(request):
+    start = time.time()
     query = str(request.args.get('q', '')).strip()
     if query:
-        mongo_db = request.app.ctx.mongo_db
-        result = await doc_search(query=query, mongo_db=mongo_db)
-        return await template('search.html', title=query, result=result)
+        # pay attenn here
+        cache_result = await request.app.ctx.cache.get(query)
+        if cache_result:
+            result = cache_result
+        else:
+        #go to the dbs
+            mongo_db = request.app.ctx.mongo_db
+            result = await doc_search(query=query, mongo_db=mongo_db)
+            await request.app.ctx.cache.set(query, result)
+
+        time_cost = float('%.6f' % (time.time() - start))
+        # pay ..
+        return await template(
+            'search.html',
+            title=query,
+            result=result,
+            count=len(result),
+            time_cost=time_cost
+        )
+
+        # mongo_db = request.app.ctx.mongo_db
+        # result = await doc_search(query=query, mongo_db=mongo_db)
+        # return await template('search.html', title=query, result=result)
     else:
         return await template('index.html')
 
