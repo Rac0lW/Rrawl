@@ -3,41 +3,38 @@ sys.path.append('E://Project/Rrawl')
 
 from ruia import AttrField, Item, Request, Spider, TextField
 from ruia_ua import middleware as ua_middleware
-from monkey.database.motor_base  import MotorBase
+
+
+from monkey.database.motor_base import MotorBase
 
 
 class ArchivesItem(Item):
-    target_item = TextField(css_select="div#beta-inner li.module-list-item")
-    href = AttrField(css_select="li.module-list-item>a", attr="href")
+    target_item = TextField(css_select="ul.navigation-list li.navigation-item")
+    href = AttrField(css_select="li.navigation-item>a", attr="href")
 
 
 class ArticleListItem(Item):
-    target_item = TextField(css_select="div#alpha-inner li.module-list-item")
-    title = TextField(css_select="li.module-list-item>a")
-    href = AttrField(css_select="li.module-list-item>a", attr="href")
+    target_item = TextField(css_select="ul li.heti")
+    title = TextField(css_select="li.heti>a")
+    href = AttrField(css_select="li.heti>a", attr="href")
 
 
 class BlogSpider(Spider):
-    """
-    针对博客源 http://www.ruanyifeng.com/blog/archives.html 的爬虫
-    这里为了模拟ua，引入了一个 ruia 的第三方扩展
-        - ruia-ua: https://github.com/ruia-plugins/ruia-ua
-        - pipenv install ruia-ua
-        - 此扩展会自动为每一次请求随机添加 User-Agent
-    """
-
     # 设置启动URL
-    start_urls = ["http://www.ruanyifeng.com/blog/archives.html"]
+    start_urls = ["https://www.bmpi.dev/dev/"]
     # 爬虫模拟请求的配置参数
-    request_config = {"RETRIES": 10, "DELAY": 0, "TIMEOUT": 5}
+    request_config = {"RETRIES": 5, "DELAY": 0, "TIMEOUT": 5}
     # 请求信号量
     concurrency = 10
     blog_nums = 0
 
     async def parse(self, res):
         try:
+            # 用于获取MongoDB数据库的实例。它创建了MotorBase类的新实例，并使用get_db()方法获取数据库实例。
             self.mongo_db = MotorBase(loop=self.loop).get_db()
+
         except Exception as e:
+            # 如果获取数据库实例时出现异常，它将记录异常信息并打印出来
             self.logger.exception(e)
         async for item in ArchivesItem.get_items(html=await res.text()):
             yield Request(
@@ -50,7 +47,7 @@ class BlogSpider(Spider):
         async for item in ArticleListItem.get_items(html=await res.text()):
             # 已经抓取的链接不再请求
             is_exist = (
-                await self.mongo_db.source_docs.find_one({"url": item.href}) or {}
+                    await self.mongo_db.source_docs.find_one({"url": item.href}) or {}
             )
 
             if not is_exist.get("html"):
@@ -61,6 +58,7 @@ class BlogSpider(Spider):
                     request_config=self.request_config,
                 )
 
+    # 保存数据
     async def save(self, res):
         html = await res.text()
         data = {"url": res.url, "title": res.metadata["title"], "html": html}
@@ -75,6 +73,7 @@ class BlogSpider(Spider):
 
 def main():
     # 启用代理池插件
+    # 启动程序
     BlogSpider.start(middleware=ua_middleware)
 
 

@@ -1,4 +1,6 @@
 import numpy as np
+import sys
+sys.path.append('E://Project/Rrawl')
 
 from functools import reduce
 from math import sqrt

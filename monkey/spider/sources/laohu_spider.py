@@ -1,3 +1,6 @@
+import sys
+sys.path.append('E://Project/Rrawl')
+
 from ruia import AttrField, Item, Request, Spider, TextField
 from ruia_ua import middleware as ua_middleware
 from monkey.database.motor_base  import MotorBase
@@ -5,21 +8,20 @@ from monkey.database.motor_base  import MotorBase
 
 class ArchivesItem(Item):
 
-    target_item = TextField(css_select="article.post a")
-    href = AttrField(css_select="a", attr="href")
+    target_item = TextField(css_select="div#secondary li")
+    href = AttrField(css_select="li>a", attr="href")
 
 
 class ArticleListItem(Item):
-
-    target_item = TextField(css_select="article.post a")
-    title = TextField(css_select="a")
-    href = AttrField(css_select="a", attr="href")
+    target_item = TextField(css_select="div.res-cons h1.post-title")
+    title = TextField(css_select="h1.post-title>a")
+    href = AttrField(css_select="h1.post-title>a", attr="href")
 
 
 class BlogSpider(Spider):
 
     # 设置启动URL
-    start_urls = ["https://www.howie6879.cn/"]
+    start_urls = ["https://www.howie6879.com/"]
     # 爬虫模拟请求的配置参数
     request_config = {"RETRIES": 10, "DELAY": 0, "TIMEOUT": 5}
     # 请求信号量
@@ -28,9 +30,11 @@ class BlogSpider(Spider):
 
     async def parse(self, res):
         try:
+            # 用于获取MongoDB数据库的实例。它创建了MotorBase类的新实例，并使用get_db()方法获取数据库实例。
             self.mongo_db = MotorBase(loop=self.loop).get_db()
 
         except Exception as e:
+            # 如果获取数据库实例时出现异常，它将记录异常信息并打印出来
             self.logger.exception(e)
         async for item in ArchivesItem.get_items(html=await res.text()):
             yield Request(
@@ -38,7 +42,7 @@ class BlogSpider(Spider):
                 callback=self.parse_item,
                 request_config=self.request_config,
             )
-
+    
     async def parse_item(self, res):
         async for item in ArticleListItem.get_items(html=await res.text()):
             # 已经抓取的链接不再请求
@@ -53,7 +57,7 @@ class BlogSpider(Spider):
                     metadata={"title": item.title},
                     request_config=self.request_config,
                 )
-
+    # 保存数据
     async def save(self, res):
         html = await res.text()
         data = {"url": res.url, "title": res.metadata["title"], "html": html}
@@ -68,6 +72,7 @@ class BlogSpider(Spider):
 
 def main():
     # 启用代理池插件
+    # 启动程序
     BlogSpider.start(middleware=ua_middleware)
 
 

@@ -1,8 +1,7 @@
 
 import asyncio
 import sys
-
-sys.path.append("..")
+sys.path.append('E://Project/Rrawl')
 
 import pymongo
 
@@ -35,7 +34,9 @@ async def doc_search(*, query: str, mongo_db=None) -> list:
 
         # 分词的词组转化成单词id 单词id最好加载到内存中 节省一次数据库查询
         word_cursor = mongo_db.word_id.find(
+            # 条件查询, 如果满足query_list中的任意一个条件, 则返回结果
             {"$or": query_list},
+            # 返回结果中只包含word_id, 不包含_id
             {'word_id': 1, '_id': 0}
         )
 

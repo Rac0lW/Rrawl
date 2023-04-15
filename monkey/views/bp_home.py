@@ -1,7 +1,8 @@
 
 import sys
+import subprocess
 sys.path.append("..")
-
+sys.path.append('E://Project/Rrawl')
 import time
 from sanic import Blueprint
 
@@ -30,8 +31,21 @@ async def template(tpl, **kwargs):
     return html(rendered_template)
 
 
-@bp_home.route('/')
+@bp_home.route('/', methods=['GET', 'POST'])
 async def index(request):
+    if request.method == 'POST':
+        if request.form.get('active') == 'true':
+            # active the crawl
+            print("active the crawl!")
+            subprocess.call("python ../spider/spider_console.py", shell=True)
+            return await template('index.html', title="active") 
+
+            
+        if request.form.get('indexandcompress') == 'true':
+            # index and compress
+            print("index and compress!")
+            subprocess.call("python ../common_tools.py", shell=True)
+            return await template('index.html', title="indexandcompress") 
     return await template('index.html')
 
 

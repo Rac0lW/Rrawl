@@ -1,4 +1,6 @@
 import os
+import sys
+sys.path.append('E://Project/Rrawl')
 
 import jieba
 
@@ -7,11 +9,22 @@ from monkey.config.config import Config
 
 def gen_stop_words():
     with open(os.path.join(Config.BASE_DIR, "common/stop_words.txt"), "r", encoding='utf-8') as fp:
+        # 去除空格
         stop_words = [_.strip() for _ in fp.readlines()]
     return stop_words
 
 def gen_stop_words_scdx():
     with open(os.path.join(Config.BASE_DIR, "common/scdx_stop_words.txt"), "r", encoding='utf-8') as fp:
+        stop_words = [_.strip() for _ in fp.readlines()]
+    return stop_words
+
+def gen_stop_words_cn():
+    with open(os.path.join(Config.BASE_DIR, "common/cn_stop_words.txt"), "r", encoding='utf-8') as fp:
+        stop_words = [_.strip() for _ in fp.readlines()]
+    return stop_words
+
+def gen_stop_words_baidu():
+    with open(os.path.join(Config.BASE_DIR, "common/baidu_stop_words.txt"), "r", encoding='utf-8') as fp:
         stop_words = [_.strip() for _ in fp.readlines()]
     return stop_words
 
@@ -25,6 +38,7 @@ def text_seg(text: str, stop_words: list = None) -> list:
     """
     seg_list = []
     if not stop_words:
+        # default set
         stop_words = gen_stop_words()
     for each in jieba.cut(text):
         if each not in stop_words and not each.isspace():

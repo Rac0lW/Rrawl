@@ -36,38 +36,30 @@
         style="width: 50%"
       />
     </div>
-  </form>
 
-<!--为什么你不问问神奇的chatGPT呢？-->
-  <form action="/gpt-3.5">
-    <div class="mdui-textfield mdui-textfield-floating-label">
-      <label class="mdui-center mdui-textfield-label" style="width: 50%">chatGPT search...</label>
-      <input
-        class="mdui-center mdui-textfield-input"
-        name="a"
-        style="width: 50%"
-      />
+    <div style="text-align:center;">
+    <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" type="submit" style="margin-top: auto;">搜索</button>
     </div>
   </form>
-<!--为什么你不问问神奇的GPT-4捏-->
-  <form action="/gpt-4">
-    <div class="mdui-textfield mdui-textfield-floating-label">
-      <label class="mdui-center mdui-textfield-label" style="width: 50%">GPT-4 search...</label>
-      <input
-        class="mdui-center mdui-textfield-input"
-        name="ap"
-        style="width: 50%"
-      />
+
+  
+
+  <form action="/" method="POST">
+    <input type="hidden" name="active" value="true">
+    <hr>
+    <div style="text-align:center;">
+      <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" type="submit" style="margin-top:auto" name="active" onclick="alert('Crawl is activited!')">爬虫启动</button>
     </div>
   </form>
-</div>
 
-<div class="comment-float">
-  <div class="comment-box">
-    <p>GPT-4 API目前还未开放</p>
-  </div>
-</div>
-<!--色带底部-->
-<div style="background-color: #ab0000; height: 10px;"></div>
+  <form action="/" method="POST">
+    <input type="hidden" name="indexandcompress" value="true">
+    <hr>
+    <div style="text-align:center;">
+      <button class="mdui-btn mdui-btn-raised mdui-ripple mdui-color-theme-accent" type="submit" style="margin-top:auto" name="indexandcompress" onclick="alert('Index and Compress')">启动倒排索引以及数据压缩</button>
+    </div>
+  </form>
+
+
 {% endblock %}
 

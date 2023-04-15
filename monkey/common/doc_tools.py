@@ -1,6 +1,7 @@
 import asyncio
 import math
 import sys
+sys.path.append('E://Project/Rrawl')
 
 from collections import Counter
 
@@ -40,6 +41,7 @@ async def gen_doc_word_id():
     为单词以及资源文档生成id
     :return:
     """
+    #  returns all the documents in the collection
     cursor = mongo_db.source_docs.find({})
     word_list = []
     doc_id, word_id = 0, 0
@@ -54,14 +56,17 @@ async def gen_doc_word_id():
             'title': document['title'],
             'url': document['url']
         }
-
-        await mongo_db.doc_id.update_one({
-            'title': cur_item_data['title']},
+        # update_one() is a method of pymongo.collection.Collection
+        await mongo_db.doc_id.update_one(
+            {'title': cur_item_data['title']},
             {'$set': cur_item_data},
+            # if the document is not existed in the database, create a new one.
             upsert=True)
 
         word_list += seg_title
-
+    
+    # 为单词生成id
+    # Counter() is a subclass of dict
     for key, value in Counter(word_list).items():
         word_id += 1
         cur_item_data = {
@@ -70,12 +75,13 @@ async def gen_doc_word_id():
             'tf': value
         }
 
-        await mongo_db.word_id.update_one({
-            'word': cur_item_data['word']},
+        await mongo_db.word_id.update_one(
+            {'word': cur_item_data['word']},
             {'$set': cur_item_data},
             upsert=True)
 
 
+# 生成倒排索引表
 async def gen_doc_inverted_index():
     """
     倒排索引表构建函数，首先运行程序生成id
@@ -83,13 +89,16 @@ async def gen_doc_inverted_index():
     再运行此函数方可构建倒排索引表
     :return:
     """
+    # 为单词生成倒排索引表
     word_cursor = mongo_db.word_id.find({})
+
     async for each_word in word_cursor:
         # 为某个单词生成其倒排列表
         word_id = each_word['word_id']
         word = each_word['word']
         tf = each_word['tf']
         doc_cursor = mongo_db.doc_id.find({"seg_title": word})
+        
         cur_word_data, inverted_list = {}, []
         # 记录当前doc_id
         last_doc_id = 0

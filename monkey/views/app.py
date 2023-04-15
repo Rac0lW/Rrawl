@@ -1,7 +1,5 @@
 from sanic import Sanic
 
-import sys
-
 from aiocache import SimpleMemoryCache
 
 from monkey.config.config import Config
