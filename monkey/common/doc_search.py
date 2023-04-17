@@ -25,6 +25,8 @@ async def doc_search(*, query: str, mongo_db=None) -> list:
         if mongo_db is None:
             mongo_db = MotorBase().get_db()
         seg_query = text_seg(text=query, stop_words=stop_words)
+
+        # 将分词后的结果转化成查询条件
         query_list, word_id_list, doc_id_list, final_query_list = [], [], [], []
 
         for each_word in seg_query:
@@ -49,6 +51,7 @@ async def doc_search(*, query: str, mongo_db=None) -> list:
             {'inverted_list': 1, 'word_tf': 1, '_id': 0}
         )
 
+        # 将倒排列表数据加载进内存
         async for index in index_cursor:
             cur_doc_id = 0
             # 将倒排列表数据加载进内存
@@ -66,6 +69,8 @@ async def doc_search(*, query: str, mongo_db=None) -> list:
             {"$or": final_query_list},
             {"_id": 0}
         )
+        #  余弦排序
+        # 对查询的词组进行分词
 
         query_list = text_seg(query)
         async for doc in doc_cursor:
@@ -77,6 +82,7 @@ async def doc_search(*, query: str, mongo_db=None) -> list:
             cos = CosineSimilarity(query_list, doc_data)
             vector = cos.create_vector()
             cs_res = cos.calculate(vector)
+
             doc['cs_value'] = cs_res['value']
             result.append(doc)
 
@@ -95,7 +101,7 @@ async def doc_search(*, query: str, mongo_db=None) -> list:
 
 
 if __name__ == '__main__':
-    res = asyncio.get_event_loop().run_until_complete(doc_search(query='学习c语言之路'))
+    res = asyncio.get_event_loop().run_until_complete(doc_search(query='管理'))
     for each in res:
         print(each['title'])
         print(each['cs_value'])

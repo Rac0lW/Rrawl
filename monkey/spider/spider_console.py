@@ -21,11 +21,25 @@ def file_name(file_dir=os.path.join(Config.BASE_DIR, "spider/sources")):
 
 
 def spider_console():
+    # set the time that we want(s)
+    run_time = 10
+    start_time = time.time()
+
+
     start = time.time()
     all_files = file_name()
-    for spider in all_files:
-        spider_module = import_module("monkey.spider.sources.{}".format(spider))
-        spider_module.main()
+    while True:
+        # count the time that has already passed
+        elapsed_time = time.time() - start_time
+
+
+        for spider in all_files:
+            spider_module = import_module("monkey.spider.sources.{}".format(spider))
+            if elapsed_time > run_time:
+                break
+            spider_module.main()
+        
+        break
 
     logger.info(f"Time costs: {time.time() - start}")
 

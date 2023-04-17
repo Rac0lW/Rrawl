@@ -44,7 +44,7 @@ async def index(request):
         if request.form.get('indexandcompress') == 'true':
             # index and compress
             print("index and compress!")
-            subprocess.call("python ../common_tools.py", shell=True)
+            subprocess.call("python ../common/doc_tools.py", shell=True)
             return await template('index.html', title="indexandcompress") 
     return await template('index.html')
 

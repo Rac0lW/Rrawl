@@ -31,7 +31,9 @@ def gen_stop_words_baidu():
 
 def text_seg(text: str, stop_words: list = None) -> list:
     """
-    样例文件“哥们在这给你说唱”
+    示例文件：
+    
+    “哥们在这给你说唱”
     对输入的文本利用jieba分词进行分词
     :param text:
     :return: []

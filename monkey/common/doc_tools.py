@@ -41,13 +41,16 @@ async def gen_doc_word_id():
     为单词以及资源文档生成id
     :return:
     """
-    #  returns all the documents in the collection
+    # 为文档生成id(doc_id)
     cursor = mongo_db.source_docs.find({})
+    
     word_list = []
     doc_id, word_id = 0, 0
     # 获取所有源数据
     async for document in cursor:
+        # 进行分词
         seg_title = text_seg(text=document['title'], stop_words=stop_words)
+
         doc_id += 1
         cur_item_data = {
             'doc_id': doc_id,
@@ -56,16 +59,17 @@ async def gen_doc_word_id():
             'title': document['title'],
             'url': document['url']
         }
-        # update_one() is a method of pymongo.collection.Collection
+        # 更新数据库
         await mongo_db.doc_id.update_one(
             {'title': cur_item_data['title']},
             {'$set': cur_item_data},
-            # if the document is not existed in the database, create a new one.
+            # 没有则插入新数据
             upsert=True)
 
+        # 生成单词列表，给下面的函数使用
         word_list += seg_title
     
-    # 为单词生成id
+    # 为单词生成id（word_id）
     # Counter() is a subclass of dict
     for key, value in Counter(word_list).items():
         word_id += 1

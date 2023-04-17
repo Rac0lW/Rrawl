@@ -1,3 +1,6 @@
+import sys
+sys.path.append("..")
+sys.path.append('E://Project/Rrawl')
 from sanic import Sanic
 
 from aiocache import SimpleMemoryCache
