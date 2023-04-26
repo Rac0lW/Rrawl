@@ -1,6 +1,11 @@
 import sys
-sys.path.append("..")
-sys.path.append('E://Project/Rrawl')
+import os
+# sys.path.append("..")
+# sys.path.append('E://Project/Rrawl')
+current_path = os.path.abspath(__file__)
+current_dir = os.path.dirname(current_path)
+sys.path.append(current_dir)
+
 from sanic import Sanic
 
 from aiocache import SimpleMemoryCache

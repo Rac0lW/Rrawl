@@ -11,16 +11,23 @@ from monkey.database.motor_base import MotorBase
 mongo_db = MotorBase().get_db()
 stop_words = gen_stop_words()
 
+"""
+- [Elias Gamma编码 - 维基百科](https://zh.wikipedia.org/wiki/EliasGamma%E7%BC%96%E7%A0%81)
+- [Elias Gamma编码 - 阮一峰的网络日志](http://www.ruanyifeng.com/blog/2018/01/elias-gamma-coding.html)
+"""
 
 def elias_gamma_encode(X: int) -> str:
     """
     Elias Gamma算法对倒排列表的文档数值之差进行编码压缩
-    :return:
+    return: 二进制字符串
     """
-    e = int(math.log(X, 2))
+    # X = 2^e + d
+    e = int(math.log(X, 2)) 
     d = int(X - math.pow(2, e))
+    
     unary_code = '1' * e + '0'
     binary_d = bin(d).replace('0b', '')
+    # 二进制数不足e位, 则在前面补0
     binary_code = ('0' * e)[0:(e - len(binary_d))] + binary_d
     return f"{unary_code}:{binary_code}"
 
@@ -28,7 +35,7 @@ def elias_gamma_encode(X: int) -> str:
 def elias_gamma_decode(el_str: str) -> int:
     """
     Elias Gamma算法对倒排列表的文档数值之差进行解码
-    :return:
+    return: 解码后的数值
     """
     unary_code, binary_code = el_str.split(':')
     e = len(unary_code) - 1
@@ -39,7 +46,7 @@ def elias_gamma_decode(el_str: str) -> int:
 async def gen_doc_word_id():
     """
     为单词以及资源文档生成id
-    :return:
+    return: None
     """
     # 为文档生成id(doc_id)
     cursor = mongo_db.source_docs.find({})
@@ -91,7 +98,7 @@ async def gen_doc_inverted_index():
     倒排索引表构建函数，首先运行程序生成id
     asyncio.get_event_loop().run_until_complete(gen_doc_word_id())
     再运行此函数方可构建倒排索引表
-    :return:
+    :return None
     """
     # 为单词生成倒排索引表
     word_cursor = mongo_db.word_id.find({})
@@ -114,8 +121,9 @@ async def gen_doc_inverted_index():
             seg_title_counter = each_doc['seg_title_counter']
             # 编码前：{'word_id': 1, 'word_tf': 2, 'inverted_list': [(1, 1), (1352, 1)]}
             # 编码后：{'word_id': 1, 'word_tf': 2, 'inverted_list': [(b'0:0', 1), (b'11111111110:0101000111', 1)]}
-            inverted_list.append((cur_doc_id, seg_title_counter[word]))
-            # inverted_list.append((elias_gamma_encode(cur_doc_id), seg_title_counter[word]))
+            # inverted_list.append((cur_doc_id, seg_title_counter[word]))
+            inverted_list.append((elias_gamma_encode(int(abs(cur_doc_id))), seg_title_counter[word]))
+            
         cur_word_data['word_id'] = word_id
         cur_word_data['word_tf'] = tf
         cur_word_data['inverted_list'] = inverted_list
@@ -130,5 +138,9 @@ async def gen_doc_inverted_index():
 if __name__ == '__main__':
     asyncio.get_event_loop().run_until_complete(gen_doc_word_id())
     asyncio.get_event_loop().run_until_complete(gen_doc_inverted_index())
-    # el_str = elias_gamma_encode(100)
-    # print(elias_gamma_decode(el_str))
+
+    # 测试
+    print("[LOG] Test Case: 1000")
+    el_str = elias_gamma_encode(1000)
+    print(el_str)
+    print(elias_gamma_decode(el_str))

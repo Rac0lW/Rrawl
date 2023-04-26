@@ -3,6 +3,8 @@ import sys
 import subprocess
 sys.path.append("..")
 sys.path.append('E://Project/Rrawl')
+
+
 import time
 from sanic import Blueprint
 
@@ -31,7 +33,7 @@ async def template(tpl, **kwargs):
     return html(rendered_template)
 
 
-@bp_home.route('/', methods=['GET', 'POST'])
+@bp_home.route('/', methods=['GET', 'POST'], name = 'fuck')
 async def index(request):
     if request.method == 'POST':
         if request.form.get('active') == 'true':
@@ -49,21 +51,24 @@ async def index(request):
     return await template('index.html')
 
 
-@bp_home.route('/search')
+@bp_home.route('/search', name = 'fuck2')
 async def index(request):
     start = time.time()
+    # 获取查询参数
     query = str(request.args.get('q', '')).strip()
     if query:
-        # pay attenn here
+        # 从缓存中查询
         cache_result = await request.app.ctx.cache.get(query)
+        # 如果缓存存在
         if cache_result:
             result = cache_result
         else:
-        #go to the dbs
+        # 如果缓存不存在，从数据库中查询，并将结果存入缓存
             mongo_db = request.app.ctx.mongo_db
             result = await doc_search(query=query, mongo_db=mongo_db)
             await request.app.ctx.cache.set(query, result)
-
+        
+        # 计算查询时间
         time_cost = float('%.6f' % (time.time() - start))
         # pay ..
         return await template(
@@ -80,6 +85,3 @@ async def index(request):
     else:
         return await template('index.html')
 
-@bp_home.route('/gpt')
-async def index(request):
-    pass

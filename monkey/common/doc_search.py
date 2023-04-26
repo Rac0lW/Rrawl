@@ -2,6 +2,11 @@
 import asyncio
 import sys
 sys.path.append('E://Project/Rrawl')
+sys.path.append("..")
+# 以本文件所在的上个目录的上个目录为根目录
+sys.path.append('../..')
+
+
 
 import pymongo
 
@@ -10,6 +15,7 @@ from monkey.common.common_tools import gen_stop_words, text_seg
 from monkey.common.cosine_similarity import CosineSimilarity
 from monkey.database.motor_base import MotorBase
 from monkey.utils.log import logger
+from monkey.common.doc_tools import elias_gamma_encode, elias_gamma_decode
 
 stop_words = gen_stop_words()
 
@@ -53,11 +59,11 @@ async def doc_search(*, query: str, mongo_db=None) -> list:
 
         # 将倒排列表数据加载进内存
         async for index in index_cursor:
-            cur_doc_id = 0
             # 将倒排列表数据加载进内存
             for i in index['inverted_list']:
-                cur_doc_id += i[0]
-                doc_id_list.append(cur_doc_id)
+                # cur_doc_id = elias_gamma_decode(i[0])
+                cur_doc_id = i[0]
+                doc_id_list.append(elias_gamma_decode(cur_doc_id))
 
         # 根据文档id 找出文档详细信息
         for each_doc in set(doc_id_list):
